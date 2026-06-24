@@ -31,14 +31,17 @@ Skills are in `.claude/skills/`. Do NOT load all skills at once — read `.claud
 
 | Task Context | Load This Skill |
 |---|---|
+| **User drops a large feature requirement** | `feature-delivery` ← ALWAYS start here |
 | Code review, refactor, clean code | `code-quality` |
 | Design patterns, DDD, Value Objects | `design-patterns` |
 | JPA, DB schema, N+1, query optimization | `jpa-patterns` |
 | @Transactional, service layer, rollback | `transaction-patterns` |
 | Logging, debugging | `logging-patterns` |
-| Building Spring Boot features | `spring-boot` → then sub-reference if needed |
+| Building a specific targeted Spring Boot feature | `spring-boot` → then sub-reference if needed |
 
 **Rule:** Load at most 1-2 skills per task. Only load sub-references (e.g. `spring-boot/references/security.md`) when the main skill isn't enough.
+
+**Feature Delivery Rule:** When the user provides a new feature requirement (not a bug fix, not a refactor), ALWAYS load `feature-delivery/SKILL.md` first and follow its orchestration protocol exactly. Do not jump straight to coding.
 
 ## Project General Instructions
 
