@@ -59,67 +59,13 @@ public void process(Order order) {
 ## Clean Code Principles
 
 ### DRY - Don't Repeat Yourself
-
-**Violation:**
-```java
-// ❌ Duplicated validation logic
-public void createUser(UserRequest req) {
-    if (req.getEmail() == null || !req.getEmail().contains("@")) {
-        throw new ValidationException("Invalid email");
-    }
-}
-
-public void updateUser(UserRequest req) {
-    if (req.getEmail() == null || !req.getEmail().contains("@")) {
-        throw new ValidationException("Invalid email");
-    }
-}
-```
-
-**Fix:**
-```java
-// ✅ Single source of truth
-public class EmailValidator {
-    public void validate(String email) {
-        if (email == null || !email.contains("@")) {
-            throw new ValidationException("Invalid email");
-        }
-    }
-}
-```
+Same logic in two places → extract to a shared method or validator. Every piece of knowledge has a single, authoritative location.
 
 ### KISS - Keep It Simple
-
-**Violation:**
-```java
-// ❌ Over-engineered
-public interface UserFactory {
-    User createUser();
-}
-public class ConcreteUserFactory implements UserFactory {
-    public User createUser() { return new User(); }
-}
-```
-
-**Fix:**
-```java
-// ✅ Simple
-public User createUser() { return new User(); }
-```
+No interfaces, factories, or abstractions unless there are multiple implementations today. `new Foo()` beats a `FooFactory` when there's only one `Foo`.
 
 ### YAGNI - You Aren't Gonna Need It
-
-**Violation:**
-```java
-// ❌ Premature abstraction
-public class ConfigurableUserServiceFactoryProvider { }
-```
-
-**Fix:**
-```java
-// ✅ Implement when actually needed
-public class UserService { }
-```
+Don't build for hypothetical future requirements. Three similar lines is better than a premature abstraction.
 
 ---
 

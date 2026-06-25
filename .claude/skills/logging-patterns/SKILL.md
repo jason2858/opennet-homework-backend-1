@@ -18,85 +18,18 @@ Effective logging for Java applications with focus on structured, AI-parsable fo
 
 ## AI-Friendly Logging
 
-> **Key insight:** JSON logs are better for AI analysis - faster parsing, fewer tokens, direct field access.
+JSON logs are better for AI analysis — direct field access, no regex interpretation.
 
-### Why JSON for AI/Claude Code?
-
-```
-# Text format - AI must "interpret" the string
-2026-01-29 10:15:30 INFO OrderService - Order 12345 created for user-789, total: 99.99
-
-# JSON format - AI extracts fields directly
-{"timestamp":"2026-01-29T10:15:30Z","level":"INFO","orderId":12345,"userId":"user-789","total":99.99}
-```
-
-| Aspect | Text | JSON |
-|--------|------|------|
-| Parsing | Regex/interpretation | Direct field access |
-| Token usage | Higher (repeated patterns) | Lower (structured) |
-| Error extraction | Parse stack trace text | `exception` field |
-| Filtering | grep patterns | `jq` queries |
-
-### Recommended Setup for AI-Assisted Development
-
-```yaml
-# application.yml - JSON by default
-logging:
-  structured:
-    format:
-      console: logstash  # Spring Boot 3.4+
-
-# When YOU need to read logs manually:
-# Option 1: Use jq
-# tail -f app.log | jq .
-
-# Option 2: Switch profile temporarily
-# java -jar app.jar --spring.profiles.active=human-logs
-```
-
-### Log Format Optimized for AI Analysis
-
-```json
-{
-  "timestamp": "2026-01-29T10:15:30.123Z",
-  "level": "INFO",
-  "logger": "com.example.OrderService",
-  "message": "Order created",
-  "requestId": "req-abc123",
-  "traceId": "trace-xyz",
-  "orderId": 12345,
-  "userId": "user-789",
-  "duration_ms": 45,
-  "step": "payment_completed"
-}
-```
-
-**Key fields for AI debugging:**
-- `requestId` - group all logs from same request
-- `step` - track progress through flow
-- `duration_ms` - identify slow operations
-- `level` - quick filter for errors
-
-### Reading Logs with AI/Claude Code
-
-When asking AI to analyze logs:
+Key fields to include: `requestId` (group by request), `step` (track flow), `duration_ms` (find slow ops), `level` (filter errors).
 
 ```bash
-# Get recent errors
+# Useful jq commands for log analysis
 cat app.log | jq 'select(.level == "ERROR")' | tail -20
-
-# Follow specific request
 cat app.log | jq 'select(.requestId == "req-abc123")'
-
-# Find slow operations
 cat app.log | jq 'select(.duration_ms > 1000)'
 ```
 
-AI can then:
-1. Parse JSON directly (no guessing)
-2. Follow request flow via requestId
-3. Identify exactly where errors occurred
-4. Measure timing between steps
+Spring Boot 3.4+ native JSON: `logging.structured.format.console: logstash`
 
 ---
 

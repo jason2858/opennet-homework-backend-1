@@ -197,3 +197,46 @@ public void logAudit(String action, Long entityId) {
 - [ ] No self-invocation of `@Transactional` methods
 - [ ] Checked exceptions have `rollbackFor` if needed
 - [ ] Transactions are as short as possible
+
+---
+
+---
+
+## MyBatis Context
+
+`@Transactional(readOnly = true)` has less impact with MyBatis than with JPA — there is no Hibernate dirty checking to skip. It still creates a read-only connection hint for the DB driver and is worth using for multi-statement reads that need a consistent snapshot.
+
+**When to use `@Transactional` with MyBatis:**
+- Multiple mapper writes that must be atomic (e.g., insert parent + insert child rows)
+- Do NOT wrap single-mapper methods — they auto-commit and gain nothing
+
+**When NOT to use `@Transactional`:**
+- Sequences that mix DB writes with external calls (MQ, HTTP, SMTP) — see Anti-Pattern 1
+
+### MQ + DB Eventual Consistency Pattern
+
+This project uses the following sequence in `NotificationService.create()`:
+
+```
+mapper.insert(notification)      ← DB, auto-commits, gets ID
+publishToMQ(notification)        ← external call, best-effort
+notification.setStatus(SENT/FAILED)
+mapper.update(notification)      ← DB, commits final status
+```
+
+**Why no `@Transactional` here:**
+Adding it would hold the DB connection open during `publishToMQ()` — a network call that may be slow or fail. This is Anti-Pattern 1.
+
+**Resilience via scheduler:**
+- If `update()` fails after MQ succeeds: DB still shows PENDING → scheduler retries
+- If MQ fails: status is set to FAILED, `update()` persists that → scheduler retries
+- Accepted trade-off: transient inconsistency between MQ state and DB state, resolved by retry
+
+---
+
+## Related Skills
+
+| Skill | When to load alongside this one |
+|---|---|
+| `coding-conventions` | MyBatis mapper + service layer patterns for this project |
+| `web-infra` | If transaction failure should map to specific HTTP error codes |

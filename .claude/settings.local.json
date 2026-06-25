@@ -14,7 +14,14 @@
       "Bash(docker exec:*)",
       "Bash(docker-compose down:*)",
       "Bash(git commit:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(./mvnw compile *)",
+      "Read(//Users/JasonFox/.sdkman/candidates/**)",
+      "Read(//opt/homebrew/opt/**)",
+      "Bash(xargs sed -i '' -e 's/com\\\\.example\\\\.demo\\\\.notification\\\\.controller/com.example.demo.controller/g' -e 's/com\\\\.example\\\\.demo\\\\.notification\\\\.service/com.example.demo.service/g' -e 's/com\\\\.example\\\\.demo\\\\.notification\\\\.repository/com.example.demo.repository/g' -e 's/com\\\\.example\\\\.demo\\\\.notification\\\\.domain/com.example.demo.domain/g' -e 's/com\\\\.example\\\\.demo\\\\.notification\\\\.dto/com.example.demo.dto/g' -e 's/com\\\\.example\\\\.demo\\\\.notification\\\\.event/com.example.demo.event/g' -e 's/com\\\\.example\\\\.demo\\\\.notification\\\\.validator/com.example.demo.validator/g')",
+      "Bash(xargs sed -i '' -e 's/com\\\\.example\\\\.demo\\\\.domain/com.example.demo.model.entity/g' -e 's/com\\\\.example\\\\.demo\\\\.dto/com.example.demo.model.dto/g' -e 's/com\\\\.example\\\\.demo\\\\.event/com.example.demo.mq/g')",
+      "Bash(export JAVA_HOME=/opt/homebrew/Cellar/openjdk@21/21.0.9/libexec/openjdk.jdk/Contents/Home)",
+      "Bash(./mvnw test *)"
     ]
   }
 }

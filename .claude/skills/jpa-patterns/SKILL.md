@@ -7,6 +7,10 @@ description: JPA/Hibernate data layer patterns (N+1, lazy loading, fetch strateg
 
 Data layer best practices for JPA/Hibernate and database schema design.
 
+> **⚠️ This project uses MyBatis, not JPA/Hibernate.**
+> For mapper, service layer, and entity patterns specific to this project, load `coding-conventions` instead.
+> This skill applies only if the project is migrated to Spring Data JPA, or for general reference on JPA concepts.
+
 ## When to Use
 - User mentions "N+1 problem" / "too many queries"
 - LazyInitializationException errors

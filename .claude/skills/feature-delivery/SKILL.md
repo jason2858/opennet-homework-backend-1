@@ -54,15 +54,17 @@ Actions:
 
 Actions:
 1. Load `spring-boot/SKILL.md` for architecture patterns.
-2. Produce a **Design Document** with these sections:
+2. Load `web-infra/SKILL.md` and answer the cross-cutting checklist (Section 4) before designing endpoints.
+3. Produce a **Design Document** with these sections:
    - **API Contract**: list every endpoint (method, path, request body, response, status codes, error cases).
    - **Data Model**: new/changed entities, fields, relationships, constraints.
    - **Package Structure**: which packages/classes will be created or modified.
+   - **Cross-Cutting Concerns**: new `ErrorCode` entries, new response helpers, new interceptors or filters needed.
    - **Key Decisions**: any non-obvious choices (e.g., sync vs async, caching strategy).
    - **Dependencies**: new libraries or infra (Redis, RocketMQ, gRPC) required.
-3. **STOP and show the Design Document to the user.**
-4. Ask: *"Does this design look correct? Any changes before I start coding?"*
-5. Incorporate feedback. Do not proceed to Phase 3 until design is confirmed.
+4. **STOP and show the Design Document to the user.**
+5. Ask: *"Does this design look correct? Any changes before I start coding?"*
+6. Incorporate feedback. Do not proceed to Phase 3 until design is confirmed.
 
 ---
 
@@ -70,28 +72,31 @@ Actions:
 
 **Goal:** Write clean, production-quality Spring Boot code.
 
+**Before coding:** load `coding-conventions/SKILL.md` for all project patterns (entity, mapper, service layers, DTOs, constants, Lombok). Load `web-infra/SKILL.md` for exception handling, response helpers, interceptors.
+
 Rules:
-- Follow ALL constraints from `spring-boot/SKILL.md` (constructor injection, @Valid, DTOs, etc.)
-- Build layer by layer: **Entity → Repository → Service → Controller → Exception Handling**
-- After each layer, verify it compiles by running: `./mvnw compile -q`
-- If compile fails, fix immediately before continuing.
-- Load sub-references as needed:
-  - `spring-boot/references/web.md` for REST controllers and validation
-  - `spring-boot/references/data.md` for JPA entities and queries
+- Build layer by layer: **Entity → Mapper → CoreService → DTOs → Service → Controller → Cross-Cutting Infra → Config**
+- After each layer, verify it compiles: `./mvnw compile -q`. Fix immediately if it fails.
+- Load additional sub-references only if needed:
+  - `spring-boot/references/web.md` for REST controller edge cases
   - `spring-boot/references/security.md` if auth/security is involved
-  - `transaction-patterns/SKILL.md` if complex service logic with multiple writes
-  - `jpa-patterns/SKILL.md` if complex queries or N+1 risk exists
+  - `transaction-patterns/SKILL.md` if complex multi-step writes
 
 Implementation order:
-1. Domain entity (if new)
-2. Repository interface
-3. DTOs (request/response records)
-4. Service class (business logic)
-5. Controller class (HTTP layer)
-6. Exception handler additions (if new error cases)
-7. Configuration (if new infra integration)
+1. Domain entity (`coding-conventions` § Entity)
+2. TypeHandler if `List<String>` fields exist (`coding-conventions` § JsonListTypeHandler)
+3. Mapper interface (`coding-conventions` § Data Access)
+4. CoreService (`coding-conventions` § Service Layer)
+5. DTOs — request/response/shared records (`coding-conventions` § DTOs)
+6. Service class — business logic (`coding-conventions` § Service Layer)
+7. Controller
+8. Cross-cutting infra (`web-infra` § Exception Hierarchy, Response Helpers):
+   - New `ErrorCode` entries + domain exception classes
+   - New response helpers in `common/handler/` if needed
+   - New interceptors / filters if designed in Phase 2
+9. Configuration: `MetricsConfig` (TimedAspect), `WebConfig` (interceptors if any)
 
-After all code is written, run: `./mvnw compile -q` and confirm zero errors.
+After all layers: `./mvnw compile -q` — must be zero errors before proceeding.
 
 ---
 
@@ -186,4 +191,4 @@ Produce:
 - Do NOT write only happy-path tests
 - Do NOT mark complete without `BUILD SUCCESS`
 - Do NOT introduce abstractions beyond what the spec requires
-- Do NOT use Lombok
+- For all coding conventions (entity, mapper, service layers, constants, Lombok, DTOs) → see `coding-conventions/SKILL.md`

@@ -34,10 +34,12 @@ Skills are in `.claude/skills/`. Do NOT load all skills at once — read `.claud
 | **User drops a large feature requirement** | `feature-delivery` ← ALWAYS start here |
 | Code review, refactor, clean code | `code-quality` |
 | Design patterns, DDD, Value Objects | `design-patterns` |
-| JPA, DB schema, N+1, query optimization | `jpa-patterns` |
+| MyBatis mapper, query optimization | `jpa-patterns` |
 | @Transactional, service layer, rollback | `transaction-patterns` |
 | Logging, debugging | `logging-patterns` |
 | Building a specific targeted Spring Boot feature | `spring-boot` → then sub-reference if needed |
+| Error handling, interceptors, filters, response helpers | `web-infra` |
+| MyBatis mapper, service layer, constants, package structure, Lombok | `coding-conventions` |
 
 **Rule:** Load at most 1-2 skills per task. Only load sub-references (e.g. `spring-boot/references/security.md`) when the main skill isn't enough.
 
@@ -51,7 +53,10 @@ Skills are in `.claude/skills/`. Do NOT load all skills at once — read `.claud
 - Always create test cases for the generated code both positive and negative.
 - Minimize the amount of code generated.
 - Use `com.example` as the group ID for the Maven project and base Java package.
-- Key dependencies: Spring Boot Starter, Redis, JDBC, RocketMQ, gRPC.
+- Key dependencies: Spring Boot Starter, Redis, MyBatis, RocketMQ, gRPC, Actuator.
 - Existing Docker Compose is available for infrastructure services.
-- Do not use the Lombok library.
+- Use Lombok for entity and non-record classes where it reduces boilerplate.
+- Data access: always use MyBatis `@Mapper` with annotation SQL. Never use Spring Data JPA.
+- Metrics: always add `@Timed(value = "db.{entity}.execute", percentiles = {0.99, 0.95})` on every `@Mapper` interface. Register `TimedAspect` bean in a config class.
+- DTOs: use Java records. Split into `dto/request/`, `dto/response/`, and `dto/` (shared data objects with `Dto` suffix).
 - Update README.md when adding significant new features.

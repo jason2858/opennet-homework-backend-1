@@ -1,9 +1,39 @@
 spring:
   application:
-    name: demo
+    name: notification-service
 
-# define mysql properties here
+  datasource:
+    url: jdbc:mysql://localhost:3306/taskdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: taskuser
+    password: taskpass
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
-# define redis properties here
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
-# define rocketmq properties here
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: notification-producer-group
+    send-message-timeout: 3000
+    retry-times-when-send-failed: 2
+
+mybatis:
+  type-handlers-package: com.example.demo.common.typehandler
+  configuration:
+    map-underscore-to-camel-case: true
+
+notification:
+  default-from-address: no-reply@example.com
+  scheduler:
+    max-retries: 3
+    stuck-pending-threshold-minutes: 5

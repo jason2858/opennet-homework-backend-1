@@ -203,9 +203,12 @@ CREATE INDEX idx_notifications_status     ON notifications (status, deleted_at);
 
 `cc`, `bcc`, `attachments` 欄位儲存 JSON array string（`"[\"a@b.com\",\"c@d.com\"]"`），由 service 層 serialize/deserialize。避免 junction table 過度設計。
 
-### JPA Entity 說明
-- `Notification` entity：所有欄位，`@Where(clause = "deleted_at IS NULL")` 自動過濾軟刪除
-- `cc`, `bcc`, `attachments` 欄位使用 `@Convert(converter = JsonListConverter.class)` 自動序列化
+### MyBatis Mapper 說明
+- `Notification` entity：純 POJO + Lombok，無 JPA 注解
+- `cc`, `bcc`, `attachments` 使用 `JsonListTypeHandler`（`@MappedTypes(List.class)`）自動序列化
+- 軟刪除：所有 SELECT 手動加 `AND deleted_at IS NULL`，不依賴 ORM 魔法
+- `@Timed(value = "db.notification.execute", percentiles = {0.99, 0.95})` 在 Mapper 層埋 metrics
+- `map-underscore-to-camel-case: true` 自動處理 snake_case ↔ camelCase
 
 ---
 
@@ -250,30 +253,30 @@ Cache miss for `/recent` → 從 MySQL top-10 重建。
 
 ```
 src/main/java/com/example/demo/
-├── notification/
-│   ├── controller/
-│   │   └── NotificationController.java
-│   ├── service/
-│   │   ├── NotificationService.java          (business logic + MQ)
-│   │   └── NotificationCacheService.java     (Redis 封裝，所有 Redis 操作集中)
-│   ├── repository/
-│   │   └── NotificationRepository.java
-│   ├── domain/
-│   │   └── Notification.java
-│   ├── dto/
-│   │   ├── NotificationRequest.java
-│   │   ├── EmailOptions.java                 (record，nested in request)
-│   │   ├── SmsOptions.java                   (record，nested in request)
-│   │   ├── UpdateNotificationRequest.java
-│   │   ├── TrackingUpdateRequest.java
-│   │   └── NotificationResponse.java
-│   ├── event/
-│   │   └── NotificationEvent.java
-│   └── validator/
-│       ├── ValidNotificationRequest.java
-│       └── NotificationRequestValidator.java
+├── controller/
+│   └── NotificationController.java
+├── service/
+│   ├── NotificationService.java          (business logic + MQ)
+│   └── NotificationCacheService.java     (Redis 封裝，所有 Redis 操作集中)
+├── repository/
+│   └── NotificationRepository.java
+├── domain/
+│   └── Notification.java
+├── dto/
+│   ├── NotificationRequest.java
+│   ├── EmailOptions.java                 (record，nested in request)
+│   ├── SmsOptions.java                   (record，nested in request)
+│   ├── UpdateNotificationRequest.java
+│   ├── TrackingUpdateRequest.java
+│   ├── NotificationResponse.java
+│   └── CreateResult.java
+├── event/
+│   └── NotificationEvent.java
+├── validator/
+│   ├── ValidNotificationRequest.java
+│   └── NotificationRequestValidator.java
 ├── scheduler/
-│   └── NotificationScheduler.java            (@Scheduled，每分鐘掃描 scheduled_at)
+│   └── NotificationScheduler.java        (@Scheduled，每分鐘掃描 scheduled_at)
 ├── config/
 │   └── RedisConfig.java
 └── common/
@@ -282,7 +285,7 @@ src/main/java/com/example/demo/
     │   ├── NotificationNotFoundException.java
     │   └── RateLimitExceededException.java
     └── converter/
-        └── JsonListConverter.java            (JPA AttributeConverter for List<String>)
+        └── JsonListConverter.java
 ```
 
 ---
@@ -352,7 +355,8 @@ src/main/java/com/example/demo/
 | Change | Reason |
 |--------|--------|
 | ADD `spring-boot-starter-web` | REST controllers |
-| ADD `spring-boot-starter-data-jpa` | JPA persistence |
+| ADD `mybatis-spring-boot-starter:3.0.4` | MyBatis data access |
+| ADD `spring-boot-starter-actuator` | Micrometer @Timed metrics |
 | ADD `spring-boot-starter-validation` | Bean Validation |
 | ADD `com.mysql:mysql-connector-j` | MySQL driver |
 | REPLACE `rocketmq-client 5.3.2` → `rocketmq-spring-boot-starter 2.3.1` | RocketMQTemplate |
