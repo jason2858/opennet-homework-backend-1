@@ -1,4 +1,31 @@
 
+# 📬 Notification Service
+
+A RESTful notification service built with Spring Boot 3.5, supporting email and SMS delivery via RocketMQ, with Redis caching and MySQL persistence.
+
+## 🚀 Quick Start
+
+**Prerequisites:** Java 21, Docker
+
+```bash
+# 1. Start infrastructure
+docker-compose up -d
+
+# 2. Run the application
+./mvnw spring-boot:run
+
+# 3. Send a test notification
+curl -si -X POST http://localhost:8080/api/notifications \
+  -H "Content-Type: application/json" \
+  -d '{"type":"email","recipient":"user@example.com","content":"Hello!"}'
+```
+
+Expected response: `HTTP/1.1 201`, `"status": "SENT"`.
+
+> See [`HELP.md`](HELP.md) if you run into setup issues (RocketMQ broker config, DB schema).
+
+---
+
 ## 📖 How to Read This Project
 
 | Document | Content |
