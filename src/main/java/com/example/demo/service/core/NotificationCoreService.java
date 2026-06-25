@@ -28,7 +28,10 @@ public class NotificationCoreService {
     }
 
     public void update(Notification notification) {
-        mapper.update(notification);
+        int affected = mapper.update(notification);
+        if (affected == 0) {
+            throw new NotificationNotFoundException(notification.getId());
+        }
     }
 
     public List<Notification> findRecent() {

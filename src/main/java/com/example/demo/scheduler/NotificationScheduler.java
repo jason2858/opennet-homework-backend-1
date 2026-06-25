@@ -1,5 +1,6 @@
 package com.example.demo.scheduler;
 
+import com.example.demo.common.exception.NotificationNotFoundException;
 import com.example.demo.model.entity.Notification;
 import com.example.demo.model.enums.NotificationStatus;
 import com.example.demo.service.core.NotificationCoreService;
@@ -42,8 +43,12 @@ public class NotificationScheduler {
         for (Notification notification : stuck) {
             notification.setStatus(NotificationStatus.FAILED.name());
             notification.setLastError("Recovered by sweeper: PENDING exceeded threshold");
-            coreService.update(notification);
-            cacheUtil.evictNotification(notification.getId());
+            try {
+                coreService.update(notification);
+                cacheUtil.evictNotification(notification.getId());
+            } catch (NotificationNotFoundException e) {
+                log.debug("Skipping stuck notification {} — concurrently deleted", notification.getId());
+            }
         }
         cacheUtil.evictRecent();
     }

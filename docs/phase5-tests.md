@@ -3,7 +3,7 @@
 ## Results
 
 ```
-Tests run: 81, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 82, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -133,9 +133,10 @@ BUILD SUCCESS
 
 ---
 
-## NotificationSchedulerTest — 2 tests
+## NotificationSchedulerTest — 3 tests
 
 | Test | Scenario |
 |---|---|
 | `recoverStuckPending_withStuckNotifications_marksAsFailed` | Stuck PENDING rows → status set to FAILED, cache evicted |
+| `recoverStuckPending_concurrentDelete_skipsAndContinues` | Concurrent delete on one item → skipped, remaining items still processed |
 | `recoverStuckPending_noStuckNotifications_doesNothing` | No stuck rows → no DB writes, no cache eviction |
