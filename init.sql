@@ -32,9 +32,6 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    CONSTRAINT chk_type         CHECK (type         IN ('email', 'sms')),
-    CONSTRAINT chk_status       CHECK (status       IN ('PENDING', 'SENT', 'FAILED')),
-    CONSTRAINT chk_content_type CHECK (content_type IN ('text/plain', 'text/html')),
     UNIQUE KEY uq_idempotency_key (idempotency_key)
 );
 

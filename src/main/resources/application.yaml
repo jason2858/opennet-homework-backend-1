@@ -3,7 +3,7 @@ spring:
     name: notification-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/taskdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/taskdb?useSSL=false&connectionTimeZone=LOCAL&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true
     username: taskuser
     password: taskpass
     driver-class-name: com.mysql.cj.jdbc.Driver

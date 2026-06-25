@@ -23,9 +23,11 @@ import com.example.demo.util.NotificationRedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.apache.rocketmq.spring.support.RocketMQHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -212,7 +214,10 @@ public class NotificationService {
                 notification.getSenderId(),
                 now
             );
-            rocketMQTemplate.syncSend(MqConstants.NOTIFICATION_TOPIC, objectMapper.writeValueAsString(event));
+            rocketMQTemplate.syncSend(MqConstants.NOTIFICATION_TOPIC,
+                    MessageBuilder.withPayload(objectMapper.writeValueAsString(event))
+                            .setHeader(RocketMQHeaders.KEYS, String.valueOf(notification.getId()))
+                            .build());
             notification.setStatus(NotificationStatus.SENT.name());
             notification.setSentAt(now);
         } catch (Exception e) {
