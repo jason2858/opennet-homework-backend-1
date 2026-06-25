@@ -241,6 +241,37 @@ Records delivery or read timestamp. Typically called by an external webhook.
 
 ---
 
+## HTTP Status Codes / HTTP 狀態碼
+
+### 狀態碼說明
+
+| Code | Name | 意義 |
+|---|---|---|
+| `200` | OK | 請求成功，回傳資料 |
+| `201` | Created | 成功建立新資源 |
+| `204` | No Content | 成功執行，無回傳內容（DELETE） |
+| `400` | Bad Request | 請求格式錯誤或欄位驗證失敗 |
+| `404` | Not Found | 指定的資源不存在 |
+| `409` | Conflict | 請求與目前狀態衝突（例如對非 FAILED 狀態做 retry） |
+| `429` | Too Many Requests | 超過速率限制 |
+| `500` | Internal Server Error | 非預期的伺服器錯誤 |
+
+### 各端點可能回傳的狀態碼
+
+| Endpoint | 200 | 201 | 204 | 400 | 404 | 409 | 429 | 500 |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `POST /api/notifications` | ✅¹ | ✅ | | ✅ | | | ✅ | ✅ |
+| `GET /api/notifications/{id}` | ✅ | | | | ✅ | | ✅ | ✅ |
+| `GET /api/notifications/recent` | ✅ | | | | | | ✅ | ✅ |
+| `PUT /api/notifications/{id}` | ✅ | | | ✅ | ✅ | | ✅ | ✅ |
+| `DELETE /api/notifications/{id}` | | | ✅ | | ✅ | | ✅ | ✅ |
+| `POST /api/notifications/{id}/retry` | ✅ | | | | ✅ | ✅ | ✅ | ✅ |
+| `PATCH /api/notifications/{id}/tracking` | ✅ | | | ✅ | ✅ | | ✅ | ✅ |
+
+> ¹ `POST /api/notifications` 帶相同 `X-Idempotency-Key` 重送時回傳 `200`（而非 `201`），並附上 `X-Idempotency-Replayed: true` header。
+
+---
+
 ## Error Response Format / 錯誤回應格式
 
 ```json
